@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wordle Puzzle</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: #1d1e33;
+      margin: 0;
+      color: #ffffff;
+    }
+    h1 {
+      color: #ffffff;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(6, 55px);
+      grid-gap: 8px;
+      margin-bottom: 20px;
+    }
+    .grid-item {
+      width: 55px;
+      height: 55px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8em;
+      font-weight: bold;
+      background-color: #33334d;
+      border-radius: 8px;
+      text-transform: uppercase;
+      color: #ffffff;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    .correct { background-color: #00b872; transform: scale(1.05); }
+    .present { background-color: #4daae5; transform: scale(1.05); }
+    .absent { background-color: #444c4f; transform: scale(1.05); }
+    .keyboard {
+      display: grid;
+      grid-template-rows: repeat(3, 1fr);
+      gap: 6px;
+      max-width: 550px;
+      margin-top: 20px;
+    }
+    .keyboard-row {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+    }
+    .key {
+      padding: 12px 18px;
+      font-size: 1.1em;
+      background-color: #2d3436;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background-color 0.2s ease;
+      min-width: 40px;
+    }
+    .key.correct { background-color: #00b872; }
+    .key.present { background-color: #4daae5; }
+    .key.absent { background-color: #5a5f61; }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: #2d2d4d;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 450px;
+      position: relative;
+      animation: modalPop 0.3s ease-out;
+    }
+    .modal-message {
+      font-size: 1.6em;
+      margin-bottom: 20px;
+    }
+    .modal-button {
+      background-color: #4daae5;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.2em;
+      transition: background-color 0.2s;
+    }
+    .modal-button:hover {
+      background-color: #3d8ac5;
+    }
+    @keyframes modalPop {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-container" id="grid"></div>
+  <div class="keyboard" id="keyboard"></div>
+  
+  <div class="modal" id="notification-modal">
+    <div class="modal-content">
+      <div class="modal-message" id="modal-message"></div>
+      <button class="modal-button" onclick="closeModal()">OK</button>
+    </div>
+  </div>
+
+  <script>
+    const secretWord = "ORANGE";
+    let attempts = 0;
+    const maxAttempts = 6;
+    const gridContainer = document.getElementById('grid');
+    const keyboardContainer = document.getElementById('keyboard');
+    const modal = document.getElementById('notification-modal');
+    const modalMessage = document.getElementById('modal-message');
+    let currentGuess = "";
+
+    const keys = [
+      ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+      ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
+      ["enter", "z", "x", "c", "v", "b", "n", "m", "←"]
+    ];
+
+    function showModal(message) {
+      modalMessage.textContent = message;
+      modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+      modal.style.display = 'none';
+    }
+    
+    function createKeyboard() {
+      keys.forEach(row => {
+        const rowDiv = document.createElement('div');
+        rowDiv.classList.add('keyboard-row');
+        row.forEach(key => {
+          const keyButton = document.createElement('button');
+          keyButton.textContent = key;
+          keyButton.className = 'key';
+          keyButton.addEventListener('click', () => handleKeyPress(key));
+          rowDiv.appendChild(keyButton);
+        });
+        keyboardContainer.appendChild(rowDiv);
+      });
+    }
+
+    function handleKeyPress(key) {
+      if (key === 'enter') {
+        checkGuess();
+      } else if (key === '←') {
+        currentGuess = currentGuess.slice(0, -1);
+        updateGrid();
+      } else if (currentGuess.length < 6) {
+        currentGuess += key.toUpperCase();
+        updateGrid();
+      }
+    }
+
+    function updateGrid() {
+      const gridItems = Array.from(gridContainer.children);
+      gridItems.slice(attempts * 6, (attempts + 1) * 6).forEach((item, index) => {
+        item.textContent = currentGuess[index] || "";
+      });
+    }
+
+    function checkGuess() {
+      if (currentGuess.length !== 6) {
+        showModal("Please enter a 6-letter word.");
+        return;
+      }
+      
+      if (attempts >= maxAttempts) {
+        showModal(`Game Over! The word was ${secretWord}`);
+        return;
+      }
+      attempts++;
+      displayGuess(currentGuess);
+      updateKeyboard(currentGuess);
+      if (currentGuess === secretWord) {
+        showModal("Congratulations! You've guessed the word!");
+        setTimeout(() => { window.parent.checkPuzzleCompletion('wordle'); }, 1000);
+      } else if (attempts === maxAttempts) {
+        showModal(`Game Over! The word was ${secretWord}`);
+      }
+      currentGuess = "";
+      updateGrid();
+    }
+
+    function displayGuess(guess) {
+      const startIndex = (attempts - 1) * 6;
+      for (let i = 0; i < guess.length; i++) {
+        const letter = guess[i];
+        const gridItem = gridContainer.children[startIndex + i];
+        gridItem.classList.remove('correct', 'present', 'absent');
+
+        if (letter === secretWord[i]) {
+          gridItem.classList.add('correct');
+        } else if (secretWord.includes(letter)) {
+          gridItem.classList.add('present');
+        } else {
+          gridItem.classList.add('absent');
+        }
+      }
+    }
+
+    function updateKeyboard(guess) {
+      guess.split('').forEach((letter, index) => {
+        const keyButton = Array.from(keyboardContainer.querySelectorAll('.key')).find(btn => btn.textContent === letter.toLowerCase());
+        if (keyButton) {
+          if (letter === secretWord[index]) {
+            keyButton.classList.add('correct');
+          } else if (secretWord.includes(letter)) {
+            keyButton.classList.add('present');
+          } else {
+            keyButton.classList.add('absent');
+          }
+        }
+      });
+    }
+
+    function initializeGrid() {
+      for (let i = 0; i < maxAttempts * 6; i++) {
+        const gridItem = document.createElement('div');
+        gridItem.className = 'grid-item';
+        gridContainer.appendChild(gridItem);
+      }
+    }
+
+    document.addEventListener('keydown', (event) => {
+      const key = event.key.toLowerCase();
+      if ((key >= 'a' && key <= 'z') || key === 'enter' || key === 'backspace') {
+        if (key === 'backspace') {
+          handleKeyPress('←');
+        } else {
+          handleKeyPress(key);
+        }
+      }
+    });
+
+    createKeyboard();
+    initializeGrid();
+  </script>
+</body>
+</html>

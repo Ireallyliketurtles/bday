@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vicki's Birthday Puzzle Extravaganza</title>
+    <style>
+        @font-face {
+            font-family: 'CCRedAlert';
+            src: url('./images/c_c_red_alert_inet/C&C Red Alert [INET].ttf') format('truetype');
+        }
+
+        /* General styling */
+        body {
+            font-family: CCRedAlert, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('./images/option_3.jpg') center / contain no-repeat;
+            background-color: #151331;
+            height: 100vmin;
+            overflow: hidden;
+            color: #4a4a4a;
+        }
+
+        /* Banner section */
+        .banner {
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        h1 {
+            color: white;
+            font-size: 3em;
+            margin-bottom: 10px;
+            font-family: CCRedAlert, monospace;
+            text-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        /* Puzzle buttons container */
+        .puzzle-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            padding: 24px;
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+            box-sizing: border-box;
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Pixel button styling */
+        .pixel-button {
+            position: relative;
+            width: 150px;
+            height: 58px;
+            background-color: rgba(255, 255, 255, 0.6);
+            border: 4px solid #ffffff;
+            box-shadow: 0 0 0 4px #4a4a4a;
+            border-radius: 0;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            image-rendering: pixelated;
+        }
+
+        .pixel-button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .pixel-border {
+            position: absolute;
+            inset: 0;
+            border: 4px solid #f0f7ff;
+            box-shadow: 0 0 0 4px #2c2c54;
+        }
+
+        .pixel-shadow {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom right, transparent, rgba(0, 0, 0, 0.2));
+        }
+
+        .button-content {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 0 16px;
+        }
+
+        .button-text {
+            font-family: 'Press Start 2P', CCRedAlert, cursive;
+            font-size: 20px;
+            font-weight: bold;
+            color: #f0f7ff;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .bottom-shadow {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: #2c2c54;
+        }
+
+        /* Puzzle iframe styles */
+        .puzzle-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+
+        .puzzle-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1c1a47;
+            padding: 20px;
+            box-shadow: 0 0 0 8px #4a4a4a;
+            border-radius: 0;
+            width: 95%;
+            max-width: 1000px;
+            height: 90vh;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff6f61;
+            border: none;
+            width: 30px;
+            height: 30px;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 0 4px #4a4a4a;
+        }
+
+        iframe {
+            width: 100%;
+            height: calc(100% - 30px);
+            border: none;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Puzzle Buttons -->
+    <div class="puzzle-container">
+        <div class="pixel-button" data-puzzle="connections">
+            <div class="pixel-border"></div>
+            <div class="pixel-shadow"></div>
+            <div class="button-content">
+                <span class="button-text">Connections</span>
+            </div>
+            <div class="bottom-shadow"></div>
+        </div>
+
+        <div class="pixel-button" data-puzzle="https://crosswordlabs.com/embed/2023-10-27-657">
+            <div class="pixel-border"></div>
+            <div class="pixel-shadow"></div>
+            <div class="button-content">
+                <span class="button-text">Crossword</span>
+            </div>
+            <div class="bottom-shadow"></div>
+        </div>
+
+        <div class="pixel-button" data-puzzle="wordle">
+            <div class="pixel-border"></div>
+            <div class="pixel-shadow"></div>
+            <div class="button-content">
+                <span class="button-text">Wordle</span>
+            </div>
+            <div class="bottom-shadow"></div>
+        </div>
+
+        <div class="pixel-button" data-puzzle="strands">
+            <div class="pixel-border"></div>
+            <div class="pixel-shadow"></div>
+            <div class="button-content">
+                <span class="button-text">Strands</span>
+            </div>
+            <div class="bottom-shadow"></div>
+        </div>
+    </div>
+
+    <!-- Modal for Puzzles -->
+    <div class="puzzle-modal">
+        <div class="puzzle-content">
+            <button class="close-button">×</button>
+            <iframe></iframe>
+        </div>
+    </div>
+
+    <script>
+        // Track completion status
+        const puzzleStatus = {
+            connections: false,
+            crossword: false,
+            wordle: false,
+            strands: false
+        };
+
+        // Get DOM elements
+        const modal = document.querySelector('.puzzle-modal');
+        const modalContent = document.querySelector('.puzzle-content');
+        const iframe = document.querySelector('iframe');
+        const closeButton = document.querySelector('.close-button');
+        const buttons = document.querySelectorAll('.pixel-button');
+
+        // Add click handlers to buttons
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                const puzzleType = button.dataset.puzzle;
+                iframe.src = puzzleType.includes('http') ? puzzleType : `${puzzleType}.html`;
+                modal.style.display = 'block';
+            });
+        });
+
+        // Close modal when clicking close button
+        closeButton.addEventListener('click', () => {
+            modal.style.display = 'none';
+            iframe.src = '';
+        });
+
+        // Close modal when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                iframe.src = '';
+            }
+        });
+
+        // Function to check if all puzzles are complete
+        function checkAllComplete() {
+            return Object.values(puzzleStatus).every(status => status);
+        }
+
+        // Listen for messages from puzzle iframes
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'puzzle-complete') {
+                puzzleStatus[event.data.puzzle] = true;
+                if (checkAllComplete()) {
+                    alert('Congratulations! You\'ve completed all puzzles!');
+                    window.location.href = 'reward.html';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

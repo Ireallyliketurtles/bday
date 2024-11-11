@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connections Puzzle</title>
+    <style>
+        :root {
+            --primary-bg: #23244d;
+            --text-color: #16213e;
+            --selected-color: #0f3460;
+            --yellow-theme: #e5c074;
+            --green-theme: #98c7a6;
+            --blue-theme: #6ca9d9;
+            --purple-theme: #a89cd6;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--primary-bg);
+            color: white;
+            padding: 20px;
+            overflow: hidden; /* Prevent scrolling */
+        }
+
+        .container {
+            max-width: 640px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 1em;
+            text-align: center;
+        }
+
+        .mistakes {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 14px;
+        }
+
+        .mistakes-bubble {
+            width: 16px;
+            height: 16px;
+            background-color: #ff6b6b;
+            border-radius: 50%;
+        }
+
+        .game-area {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .word-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            flex-grow: 1;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 120px;
+            align-self: center;
+        }
+
+        .word {
+            aspect-ratio: 3/2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+            color: var(--text-color);
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+            font-size: 1em;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .word:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .word.selected {
+            background-color: #009595;
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .completed-groups {
+            margin-bottom: 14px;
+        }
+
+        .completed-group {
+            padding: 20px;
+            background-color: white;
+            color: var(--text-color);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .completed-group-content {
+            text-align: center;
+        }
+
+        .group-theme {
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 10px;
+        }
+
+        .group-words {
+            color: var(--text-color);
+        }
+
+        /* Theme colors */
+        .yellow-theme {
+            background-color: var(--yellow-theme);
+        }
+
+        .green-theme {
+            background-color: var(--green-theme);
+        }
+
+        .blue-theme {
+            background-color: var(--blue-theme);
+        }
+
+        .purple-theme {
+            background-color: var(--purple-theme);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .shuffle-button { background-color: #2196f3; }
+        .deselect-button { background-color: #607d8b; }
+        .submit-button { background-color: #4caf50; }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        button:hover:not(:disabled) {
+            filter: brightness(1.1);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #2d2d4d;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 380px;
+            position: relative;
+            animation: modalPop 0.3s ease-out;
+        }
+
+        .modal-message {
+            font-size: 1.6em;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .modal-button {
+            background-color: #4daae5;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.3em;
+            transition: background-color 0.2s;
+        }
+
+        .modal-button:hover {
+            background-color: #3d8ac5;
+        }
+
+        @keyframes modalPop {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="mistakes">
+            <span class="mistakes-bubble"></span>
+            <span class="mistakes-bubble"></span>
+            <span class="mistakes-bubble"></span>
+            <span class="mistakes-bubble"></span>
+        </div>
+
+        <div class="completed-groups" id="completedGroups">
+            <!-- Completed groups will be displayed here -->
+        </div>
+
+        <div class="game-area" id="gameArea">
+            <div class="word-grid" id="puzzle">
+                <!-- Words will be inserted here -->
+            </div>
+
+            <div class="controls" id="controls">
+                <button class="shuffle-button" onclick="shuffleWords()">Shuffle</button>
+                <button class="deselect-button" onclick="deselectAll()">Deselect All</button>
+                <button class="submit-button" onclick="checkSelection()" id="submitButton" disabled>Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Structure -->
+    <div class="modal" id="notification-modal">
+        <div class="modal-content">
+            <div class="modal-message" id="modal-message"></div>
+            <button class="modal-button" onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <script>
+        const wordGroups = [
+            ["CAT", "DOG", "HAMSTER", "PARROT"],
+            ["FORK", "KNIFE", "SPOON", "PLATE"],
+            ["LAKERS", "CELTICS", "BULLS", "WARRIORS"],
+            ["MOON", "SUN", "STAR", "PLANET"],
+            ["CAR", "TRUCK", "MOTORCYCLE", "BICYCLE"]
+        ];
+
+        const groupThemes = [
+            "PETS",
+            "KITCHEN ITEMS",
+            "NBA TEAMS",
+            "SPACE",
+            "VEHICLES"
+        ];
+
+        const colors = ["yellow", "green", "blue", "purple"];
+        let shuffledWords = wordGroups.flat().sort(() => Math.random() - 0.5);
+        let completedGroups = [];
+        let selectedWords = [];
+        let mistakes = 4;
+
+        const puzzleDiv = document.getElementById("puzzle");
+        const submitButton = document.getElementById("submitButton");
+        const completedGroupsDiv = document.getElementById("completedGroups");
+        const modal = document.getElementById("notification-modal");
+        const modalMessage = document.getElementById("modal-message");
+        const controlsDiv = document.getElementById("controls");
+        const gameAreaDiv = document.getElementById("gameArea");
+
+        function showModal(message) {
+            modalMessage.textContent = message;
+            modal.style.display = 'flex';
+            if (message.includes("Congratulations") || message.includes("Game Over")) {
+                controlsDiv.style.display = 'none';
+            }
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+            if (modalMessage.textContent.includes("Game Over")) {
+                window.location.reload();
+            }
+        }
+
+        function createPuzzle() {
+            puzzleDiv.innerHTML = '';
+            shuffledWords.forEach(word => {
+                const wordDiv = document.createElement("div");
+                wordDiv.className = "word";
+                wordDiv.textContent = word;
+                wordDiv.addEventListener("click", () => selectWord(wordDiv, word));
+                puzzleDiv.appendChild(wordDiv);
+            });
+        }
+
+        function selectWord(wordDiv, word) {
+            if (!wordDiv.classList.contains("completed")) {
+                if (selectedWords.includes(word)) {
+                    selectedWords = selectedWords.filter(w => w !== word);
+                    wordDiv.classList.remove("selected");
+                } else if (selectedWords.length < 4) {
+                    selectedWords.push(word);
+                    wordDiv.classList.add("selected");
+                }
+                submitButton.disabled = selectedWords.length !== 4;
+            }
+        }
+
+        function showCompletedGroup(groupIndex) {
+            const groupRow = document.createElement("div");
+            groupRow.className = "completed-group completed-group-content " + colors[groupIndex] + "-theme";
+            groupRow.innerHTML = `<div class="group-theme">${groupThemes[groupIndex]}</div><div class="group-words">${wordGroups[groupIndex].join(" • ")}</div>`;
+            completedGroupsDiv.prepend(groupRow);
+        }
+
+        function updateRemainingWords() {
+            shuffledWords = shuffledWords.filter(word => !selectedWords.includes(word));
+            createPuzzle();
+        }
+
+        function deselectAll() {
+            selectedWords = [];
+            document.querySelectorAll(".word").forEach(word => {
+                if (!word.classList.contains("completed")) {
+                    word.classList.remove("selected");
+                }
+            });
+            submitButton.disabled = true;
+        }
+
+        function shuffleWords() {
+            const uncompletedWords = Array.from(document.querySelectorAll(".word"))
+                .filter(word => !word.classList.contains("completed"));
+            
+            for (let i = uncompletedWords.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                uncompletedWords[i].parentNode.insertBefore(
+                    uncompletedWords[j], 
+                    uncompletedWords[i].nextSibling
+                );
+            }
+            deselectAll();
+        }
+
+        function checkSelection() {
+            let isCorrect = false;
+            let correctGroupIndex = -1;
+
+            wordGroups.forEach((group, index) => {
+                if (!completedGroups.includes(group) && 
+                    group.every(word => selectedWords.includes(word))) {
+                    isCorrect = true;
+                    correctGroupIndex = index;
+                    completedGroups.push(group);
+
+                    showCompletedGroup(correctGroupIndex);
+                    updateRemainingWords();
+                }
+            });
+
+            if (!isCorrect) {
+                handleMistake();
+            }
+
+            deselectAll();
+            checkCompletion();
+        }
+
+        function handleMistake() {
+            mistakes--;
+            document.querySelectorAll(".mistakes-bubble")[4 - mistakes - 1].style.backgroundColor = "#555";
+            if (mistakes === 0) {
+                showModal("Game Over! Try again.");
+            }
+        }
+
+        function checkCompletion() {
+            if (completedGroups.length === wordGroups.length) {
+                setTimeout(() => {
+                    showModal("Congratulations! You've completed all groups!");
+                    if (window.parent && typeof window.parent.checkPuzzleCompletion === 'function') {
+                        window.parent.checkPuzzleCompletion("connections");
+                    }
+                }, 500);
+            }
+        }
+
+        createPuzzle();
+    </script>
+</body>
+</html>
