@@ -408,25 +408,6 @@
     // Function to show congratulations popup
     function showCongratulations() {
         congratsPopup.style.display = 'block';
-
-        // Add a close button to manually close the popup
-        if (!congratsPopup.querySelector('.close-popup')) {
-            const closePopupButton = document.createElement('button');
-            closePopupButton.textContent = 'Close';
-            closePopupButton.className = 'close-popup';
-            closePopupButton.style.marginTop = '20px';
-            closePopupButton.style.padding = '10px 20px';
-            closePopupButton.style.backgroundColor = '#ff6f61';
-            closePopupButton.style.color = 'white';
-            closePopupButton.style.border = 'none';
-            closePopupButton.style.borderRadius = '5px';
-            closePopupButton.style.cursor = 'pointer';
-            closePopupButton.addEventListener('click', () => {
-                congratsPopup.style.display = 'none';
-            });
-
-            congratsPopup.appendChild(closePopupButton);
-        }
     }
 </script>
       
