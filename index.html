@@ -300,117 +300,124 @@
     <div class="congrats-popup">
         <h1>🎉 Congratulations! 🎉</h1>
         <p>You've completed all the puzzles!</p>
-        <a href="https://www.kudoboard.com/path-to-your-board" target="_blank">View Your Prize</a>
+        <a href="https://www.kudoboard.com/boards/TkdFG4wg" target="_blank">View Your Prize</a>
     </div>
 
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-<script>
-    // Track completion status
-    const puzzleStatus = {
-        connections: false,
-        crossword: false,
-        wordle: false,
-        strands: false
-    };
-
-    // Get DOM elements
-    const modal = document.querySelector('.puzzle-modal');
-    const iframe = document.querySelector('iframe');
-    const closeButton = document.querySelector('.close-button');
-    const toggleSolvedButton = document.querySelector('.toggle-solved');
-    const buttons = document.querySelectorAll('.pixel-button');
-    const congratsPopup = document.querySelector('.congrats-popup');
-
-    let activePuzzle = null;
-    let confettiTriggered = false;
-
-    // Add click handlers to buttons
-    buttons.forEach(button => {
-        button.addEventListener('click', () => {
-            activePuzzle = button.dataset.puzzle;
-            iframe.src = activePuzzle.includes('http') ? activePuzzle : `${activePuzzle}.html`;
-            modal.style.display = 'block';
-
-            // Update toggle button state
-            const puzzleKey = getPuzzleKey(activePuzzle);
-            toggleSolvedButton.classList.toggle('solved', puzzleStatus[puzzleKey]);
-            toggleSolvedButton.textContent = puzzleStatus[puzzleKey] ? 'Solved!' : 'Not Solved';
-        });
-    });
-
-    // Get puzzle key from URL or name
-    function getPuzzleKey(puzzleUrl) {
-        if (puzzleUrl.includes('crosswordlabs')) return 'crossword';
-        if (puzzleUrl.includes('strandstudio')) return 'strands';
-        return puzzleUrl;
-    }
-
-    // Toggle solved status
-    toggleSolvedButton.addEventListener('click', () => {
-        const puzzleKey = getPuzzleKey(activePuzzle);
-        puzzleStatus[puzzleKey] = !puzzleStatus[puzzleKey];
-
-        // Update button states
-        toggleSolvedButton.classList.toggle('solved');
-        toggleSolvedButton.textContent = puzzleStatus[puzzleKey] ? 'Solved!' : 'Not Solved';
-
-        // Update main button appearance
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        // Track completion status
+        const puzzleStatus = {
+            connections: false,
+            crossword: false,
+            wordle: false,
+            strands: false
+        };
+    
+        // Get DOM elements
+        const modal = document.querySelector('.puzzle-modal');
+        const iframe = document.querySelector('iframe');
+        const closeButton = document.querySelector('.close-button');
+        const toggleSolvedButton = document.querySelector('.toggle-solved');
+        const buttons = document.querySelectorAll('.pixel-button');
+        const congratsPopup = document.querySelector('.congrats-popup');
+    
+        let activePuzzle = null;
+        let confettiTriggered = false;
+    
+        // Add click handlers to buttons
         buttons.forEach(button => {
-            if (getPuzzleKey(button.dataset.puzzle) === puzzleKey) {
-                button.classList.toggle('solved', puzzleStatus[puzzleKey]);
+            button.addEventListener('click', () => {
+                activePuzzle = button.dataset.puzzle;
+                iframe.src = activePuzzle.includes('http') ? activePuzzle : `${activePuzzle}.html`;
+                modal.style.display = 'block';
+    
+                // Update toggle button state
+                const puzzleKey = getPuzzleKey(activePuzzle);
+                toggleSolvedButton.classList.toggle('solved', puzzleStatus[puzzleKey]);
+                toggleSolvedButton.textContent = puzzleStatus[puzzleKey] ? 'Solved!' : 'Not Solved';
+            });
+        });
+    
+        // Get puzzle key from URL or name
+        function getPuzzleKey(puzzleUrl) {
+            if (puzzleUrl.includes('crosswordlabs')) return 'crossword';
+            if (puzzleUrl.includes('strandstudio')) return 'strands';
+            return puzzleUrl;
+        }
+    
+        // Toggle solved status
+        toggleSolvedButton.addEventListener('click', () => {
+            const puzzleKey = getPuzzleKey(activePuzzle);
+            puzzleStatus[puzzleKey] = !puzzleStatus[puzzleKey];
+    
+            // Update button states
+            toggleSolvedButton.classList.toggle('solved');
+            toggleSolvedButton.textContent = puzzleStatus[puzzleKey] ? 'Solved!' : 'Not Solved';
+    
+            // Update main button appearance
+            buttons.forEach(button => {
+                if (getPuzzleKey(button.dataset.puzzle) === puzzleKey) {
+                    button.classList.toggle('solved', puzzleStatus[puzzleKey]);
+                }
+            });
+    
+            // Check if all puzzles are solved
+            if (Object.values(puzzleStatus).every(status => status)) {
+                confettiTriggered = true;
             }
         });
-
-        // Check if all puzzles are solved
-        if (Object.values(puzzleStatus).every(status => status)) {
-            confettiTriggered = true;
-        }
-    });
-
-    // Close modal when clicking close button
-    closeButton.addEventListener('click', () => {
-        modal.style.display = 'none';
-        iframe.src = '';
-
-        if (confettiTriggered) {
-            startContinuousConfetti(); // Start confetti animation
-            showCongratulations(); // Show the popup
-            confettiTriggered = false; // Reset flag
-        }
-    });
-
-    // Function to start continuous confetti animation
-    function startContinuousConfetti() {
-        const duration = 2 * 60 * 1000; // 2 minutes in milliseconds
-        const end = Date.now() + duration;
-
-        function frame() {
-            // Emit subtle bursts from random positions
-            confetti({
-                particleCount: 20, // Keep particle count low for subtleness
-                startVelocity: 25, // Moderate start velocity
-                spread: 120, // Wide spread for a soft look
-                origin: {
-                    x: Math.random(), // Random horizontal position
-                    y: Math.random() // Random vertical position
-                },
-                colors: ['#ffcc00', '#00ccff', '#ff66cc', '#66ff66'] // Soft, elegant colors
-            });
-
-            if (Date.now() < end) {
-                setTimeout(frame, 300); // Schedule the next burst every 300ms
+    
+        // Close modal when clicking close button
+        closeButton.addEventListener('click', () => {
+            modal.style.display = 'none';
+            iframe.src = '';
+    
+            if (confettiTriggered) {
+                startContinuousConfetti(); // Start confetti animation
+                showCongratulations(); // Show the popup
+                confettiTriggered = false; // Reset flag
             }
+        });
+    
+        function startContinuousConfetti() {
+   const duration = 2 * 60 * 1000;
+   const end = Date.now() + duration;
+
+   function frame() {
+       // Various explosion configurations
+       const explosions = [
+   { x: -0.1, y: Math.random() * 0.9 + 0.1, particleCount: 30, angle: 60, spread: Math.random() * 50 + 50 },    // Top left
+   { x: 1.1, y: Math.random() * 0.9 + 0.1, particleCount: 70, angle: 120, spread: Math.random() * 50 + 50 },   // Top right
+   { x: -0.1, y: Math.random() * 0.9 + 0.1, particleCount: 50, angle: 60, spread: Math.random() * 50 + 50 },    // Bottom left
+   { x: 1.1, y: Math.random() * 0.9 + 0.1, particleCount: 40, angle: 120, spread: Math.random() * 50 + 50 },   // Bottom right
+   { x: 0.5, y: 0, particleCount: 90, angle: 90, spread: Math.random() * 50 + 50 } // Center burst
+];
+
+       explosions.forEach(explosion => {
+           confetti({
+               particleCount: explosion.particleCount,
+               angle: explosion.angle,
+               spread: explosion.spread,
+               origin: { x: explosion.x, y: explosion.y },
+               colors: ['#FF3366', '#00CCFF', '#00FF99', '#FF66CC'],
+               scalar: 1.2,
+               decay: 0.95  // Slower fade out
+           });
+       });
+
+       if (Date.now() < end) {
+           setTimeout(frame, 1500);  // Less frequent explosions
+       }
+   }
+
+   frame();
+}
+    
+        // Function to show congratulations popup
+        function showCongratulations() {
+            congratsPopup.style.display = 'block';
         }
-
-        frame(); // Start the animation loop
-    }
-
-    // Function to show congratulations popup
-    function showCongratulations() {
-        congratsPopup.style.display = 'block';
-    }
-</script>
-      
-
+    </script>
+         
 </body>
 </html>
