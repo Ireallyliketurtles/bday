@@ -23,20 +23,20 @@
     }
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(6, 55px);
+      grid-template-columns: repeat(8, 50px);
       grid-gap: 8px;
       margin-bottom: 20px;
     }
     .grid-item {
-      width: 55px;
-      height: 55px;
+      width: 50px;
+      height: 50px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.8em;
+      font-size: 1.6em;
       font-weight: bold;
       background-color: #33334d;
-      border-radius: 8px;
+      border-radius: 6px;
       text-transform: uppercase;
       color: #ffffff;
       transition: background-color 0.3s ease, transform 0.3s ease;
@@ -127,9 +127,9 @@
   </div>
 
   <script>
-    const secretWord = "ORANGE";
+    const secretWord = "LUNATICS";
     let attempts = 0;
-    const maxAttempts = 6;
+    const maxAttempts = 7;
     const gridContainer = document.getElementById('grid');
     const keyboardContainer = document.getElementById('keyboard');
     const modal = document.getElementById('notification-modal');
@@ -172,7 +172,7 @@
       } else if (key === '←') {
         currentGuess = currentGuess.slice(0, -1);
         updateGrid();
-      } else if (currentGuess.length < 6) {
+      } else if (currentGuess.length < 8) {
         currentGuess += key.toUpperCase();
         updateGrid();
       }
@@ -180,14 +180,14 @@
 
     function updateGrid() {
       const gridItems = Array.from(gridContainer.children);
-      gridItems.slice(attempts * 6, (attempts + 1) * 6).forEach((item, index) => {
+      gridItems.slice(attempts * 8, (attempts + 1) * 8).forEach((item, index) => {
         item.textContent = currentGuess[index] || "";
       });
     }
 
     function checkGuess() {
-      if (currentGuess.length !== 6) {
-        showModal("Please enter a 6-letter word.");
+      if (currentGuess.length !== 8) {
+        showModal("Please enter an 8-letter word.");
         return;
       }
       
@@ -200,7 +200,6 @@
       updateKeyboard(currentGuess);
       if (currentGuess === secretWord) {
         showModal("Congratulations! You've guessed the word!");
-        setTimeout(() => { window.parent.checkPuzzleCompletion('wordle'); }, 1000);
       } else if (attempts === maxAttempts) {
         showModal(`Game Over! The word was ${secretWord}`);
       }
@@ -209,7 +208,7 @@
     }
 
     function displayGuess(guess) {
-      const startIndex = (attempts - 1) * 6;
+      const startIndex = (attempts - 1) * 8;
       for (let i = 0; i < guess.length; i++) {
         const letter = guess[i];
         const gridItem = gridContainer.children[startIndex + i];
@@ -241,7 +240,7 @@
     }
 
     function initializeGrid() {
-      for (let i = 0; i < maxAttempts * 6; i++) {
+      for (let i = 0; i < maxAttempts * 8; i++) {
         const gridItem = document.createElement('div');
         gridItem.className = 'grid-item';
         gridContainer.appendChild(gridItem);
